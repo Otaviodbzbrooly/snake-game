@@ -1,270 +1,170 @@
-const canvas = document.getElementById("game")
-const ctx = canvas.getContext("2d")
+window.onload = function () {
 
-const box = 20
+    const canvas = document.getElementById("game")
+    const ctx = canvas.getContext("2d")
 
-let snake
-let food
-let direction
-let game
+    const box = 20
 
-let coins = localStorage.getItem("coins") || 0
-coins = parseInt(coins)
+    let snake
+    let food
+    let direction
+    let game
 
-document.getElementById("coins").innerText = coins
+    let coins = parseInt(localStorage.getItem("coins")) || 0
+    document.getElementById("coins").innerText = coins
 
-let skinImage = new Image()
-skinImage.src = "imagens/skin1.png"
+    let skinImage = new Image()
+    skinImage.src = "imagens/skin1.png"
 
-let foodImg = new Image()
-foodImg.src = "imagens/food.png"
+    let foodImg = new Image()
+    foodImg.src = "imagens/food.png"
 
-document.addEventListener("keydown", mudarDirecao)
+    document.addEventListener("keydown", mudarDirecao)
 
-function iniciarValores() {
-
-    snake = [{ x: 200, y: 200 }]
-
-    food = {
-
-        x: Math.floor(Math.random() * 20) * box,
-        y: Math.floor(Math.random() * 20) * box
-
-    }
-
-    direction = "RIGHT"
-
-}
-
-function startGame() {
-
-    iniciarValores()
-
-    if (game) clearInterval(game)
-
-    game = setInterval(jogo, 160)
-
-}
-
-function resetGame() {
-
-    clearInterval(game)
-
-    ctx.clearRect(0, 0, 400, 400)
-
-}
-
-function mudarDirecao(e) {
-
-    if (e.key == "a" && direction != "RIGHT") direction = "LEFT"
-    if (e.key == "d" && direction != "LEFT") direction = "RIGHT"
-    if (e.key == "w" && direction != "DOWN") direction = "UP"
-    if (e.key == "s" && direction != "UP") direction = "DOWN"
-
-}
-
-function colisao(head, snake) {
-
-    for (let i = 0; i < snake.length; i++) {
-
-        if (head.x == snake[i].x && head.y == snake[i].y) {
-
-            return true
-
-        }
-
-    }
-
-    return false
-
-}
-
-function jogo() {
-
-    ctx.clearRect(0, 0, 400, 400)
-
-    /* DESENHAR GRADES */
-
-    for (let x = 0; x < canvas.width; x += box) {
-
-        for (let y = 0; y < canvas.height; y += box) {
-
-            ctx.strokeStyle = "#222"
-            ctx.strokeRect(x, y, box, box)
-
-        }
-
-    }
-
-    /* COBRA */
-
-    for (let i = 0; i < snake.length; i++) {
-
-        ctx.drawImage(skinImage, snake[i].x, snake[i].y, box, box)
-
-    }
-
-    /* COMIDA */
-
-    ctx.drawImage(foodImg, food.x, food.y, box, box)
-
-    let headX = snake[0].x
-    let headY = snake[0].y
-
-    if (direction == "LEFT") headX -= box
-    if (direction == "RIGHT") headX += box
-    if (direction == "UP") headY -= box
-    if (direction == "DOWN") headY += box
-
-    /* MORTE */
-
-    if (
-
-        headX < 0 ||
-        headX >= canvas.width ||
-        headY < 0 ||
-        headY >= canvas.height ||
-        colisao({ x: headX, y: headY }, snake)
-
-    ) {
-
-        clearInterval(game)
-
-        alert("💀 GAME OVER")
-
-        return
-
-    }
-
-    /* COMER */
-
-    if (headX == food.x && headY == food.y) {
+    function iniciarValores() {
+        snake = [{ x: 200, y: 200 }]
 
         food = {
-
             x: Math.floor(Math.random() * 20) * box,
             y: Math.floor(Math.random() * 20) * box
-
         }
 
-        coins++
-
-        localStorage.setItem("coins", coins)
-
-        document.getElementById("coins").innerText = coins
-
-    } else {
-
-        snake.pop()
-
+        direction = "RIGHT"
     }
 
-    let newHead = { x: headX, y: headY }
+    window.startGame = function () {
+        iniciarValores()
 
-    snake.unshift(newHead)
+        if (game) clearInterval(game)
 
-}
+        game = setInterval(jogo, 120) // 🔥 FPS melhorado
+    }
 
-/* LOJA */
+    window.resetGame = function () {
+        clearInterval(game)
+        ctx.clearRect(0, 0, 400, 400)
+    }
 
-const skins = [
+    function mudarDirecao(e) {
+        if (e.key == "a" && direction != "RIGHT") direction = "LEFT"
+        if (e.key == "d" && direction != "LEFT") direction = "RIGHT"
+        if (e.key == "w" && direction != "DOWN") direction = "UP"
+        if (e.key == "s" && direction != "UP") direction = "DOWN"
+    }
 
-    { name: "Skin Verde", img: "imagens/skin1.png", preco: 0 },
-    { name: "Skin Azul", img: "imagens/skin2.png", preco: 10 },
-    { name: "Skin Rosa", img: "imagens/skin3.png", preco: 30 }
+    function colisao(head, snake) {
+        return snake.some(s => s.x === head.x && s.y === head.y)
+    }
 
-]
+    function jogo() {
+        ctx.clearRect(0, 0, 400, 400)
 
-let carrinho = []
+        for (let x = 0; x < canvas.width; x += box) {
+            for (let y = 0; y < canvas.height; y += box) {
+                ctx.strokeStyle = "#222"
+                ctx.strokeRect(x, y, box, box)
+            }
+        }
 
-const skinsDiv = document.getElementById("skins")
+        snake.forEach(part => {
+            ctx.drawImage(skinImage, part.x, part.y, box, box)
+        })
 
-skins.forEach((skin, i) => {
+        ctx.drawImage(foodImg, food.x, food.y, box, box)
 
-    let div = document.createElement("div")
+        let headX = snake[0].x
+        let headY = snake[0].y
 
-    div.className = "skin"
+        if (direction == "LEFT") headX -= box
+        if (direction == "RIGHT") headX += box
+        if (direction == "UP") headY -= box
+        if (direction == "DOWN") headY += box
 
-    div.innerHTML = `
+        if (
+            headX < 0 ||
+            headX >= canvas.width ||
+            headY < 0 ||
+            headY >= canvas.height ||
+            colisao({ x: headX, y: headY }, snake)
+        ) {
+            clearInterval(game)
+            alert("💀 GAME OVER")
+            return
+        }
 
-<img src="${skin.img}" width="40">
+        if (headX == food.x && headY == food.y) {
+            food = {
+                x: Math.floor(Math.random() * 20) * box,
+                y: Math.floor(Math.random() * 20) * box
+            }
 
-<br>
+            coins++
+            localStorage.setItem("coins", coins)
+            document.getElementById("coins").innerText = coins
 
-${skin.name}
+        } else {
+            snake.pop()
+        }
 
-<br>
+        snake.unshift({ x: headX, y: headY })
+    }
 
-Preço: ${skin.preco}
+    /* LOJA */
 
-<br>
+    const skins = [
+        { name: "Skin Verde", img: "imagens/skin1.png", preco: 0 },
+        { name: "Skin Azul", img: "imagens/skin2.png", preco: 10 },
+        { name: "Skin Rosa", img: "imagens/skin3.png", preco: 30 }
+    ]
 
-<button onclick="addCarrinho(${i})">Adicionar</button>
+    let carrinho = []
 
-`
+    const skinsDiv = document.getElementById("skins")
 
-    skinsDiv.appendChild(div)
+    skins.forEach((skin, i) => {
+        let div = document.createElement("div")
+        div.className = "skin"
 
-})
+        div.innerHTML = `
+            <img src="${skin.img}" width="40"><br>
+            ${skin.name}<br>
+            Preço: ${skin.preco}<br>
+            <button onclick="addCarrinho(${i})">Adicionar</button>
+        `
 
-function abrirLoja() {
-
-    document.getElementById("loja").style.display = "block"
-
-}
-
-function fecharLoja() {
-
-    document.getElementById("loja").style.display = "none"
-
-}
-
-function addCarrinho(i) {
-
-    carrinho.push(skins[i])
-
-    let li = document.createElement("li")
-
-    li.innerText = skins[i].name
-
-    document.getElementById("carrinho").appendChild(li)
-
-}
-
-function comprar() {
-
-    let total = 0
-
-    carrinho.forEach(item => {
-
-        total += item.preco
-
+        skinsDiv.appendChild(div)
     })
 
-    if (coins >= total) {
+    window.abrirLoja = () => document.getElementById("loja").style.display = "block"
+    window.fecharLoja = () => document.getElementById("loja").style.display = "none"
 
-        coins -= total
+    window.addCarrinho = function (i) {
+        carrinho.push(skins[i])
 
-        localStorage.setItem("coins", coins)
-
-        document.getElementById("coins").innerText = coins
-
-        skinImage.src = carrinho[carrinho.length - 1].img
-
-        alert("Skin equipada!")
-
-    } else {
-
-        alert("Moedas insuficientes!")
-
+        let li = document.createElement("li")
+        li.innerText = skins[i].name
+        document.getElementById("carrinho").appendChild(li)
     }
 
-}
+    window.comprar = function () {
+        let total = carrinho.reduce((sum, item) => sum + item.preco, 0)
 
-function logout() {
+        if (coins >= total) {
+            coins -= total
+            localStorage.setItem("coins", coins)
+            document.getElementById("coins").innerText = coins
 
-    localStorage.removeItem("logado")
+            skinImage.src = carrinho[carrinho.length - 1].img
 
-    window.location.href = "login.html"
+            alert("Skin equipada!")
+        } else {
+            alert("Moedas insuficientes!")
+        }
+    }
+
+    window.logout = function () {
+        localStorage.removeItem("logado")
+        window.location.href = "login.html"
+    }
 
 }
