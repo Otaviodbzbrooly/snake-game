@@ -4,6 +4,7 @@ window.onload = function () {
     const ctx = canvas.getContext("2d")
 
     const box = 20
+    const gridSize = canvas.width / box // 🔥 automático (10x10)
 
     let snake
     let food
@@ -15,11 +16,13 @@ window.onload = function () {
     document.addEventListener("keydown", mudarDirecao)
 
     function iniciarValores() {
-        snake = [{ x: 200, y: 200 }]
+
+        // 🔥 cobra começa no centro
+        snake = [{ x: box * 5, y: box * 5 }]
 
         food = {
-            x: Math.floor(Math.random() * 15) * box,
-            y: Math.floor(Math.random() * 15) * box
+            x: Math.floor(Math.random() * gridSize) * box,
+            y: Math.floor(Math.random() * gridSize) * box
         }
 
         direction = "RIGHT"
@@ -38,17 +41,17 @@ window.onload = function () {
 
     function jogo() {
 
-        // LIMPA TELA
+        // fundo
         ctx.fillStyle = "#000"
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-        // COBRA
+        // cobra
         ctx.fillStyle = "lime"
         snake.forEach(part => {
             ctx.fillRect(part.x, part.y, box, box)
         })
 
-        // COMIDA
+        // comida
         ctx.fillStyle = "red"
         ctx.fillRect(food.x, food.y, box, box)
 
@@ -60,7 +63,7 @@ window.onload = function () {
         if (direction == "UP") headY -= box
         if (direction == "DOWN") headY += box
 
-        // MORTE
+        // colisão
         if (
             headX < 0 ||
             headX >= canvas.width ||
@@ -73,19 +76,19 @@ window.onload = function () {
             return
         }
 
-        // COMER
+        // comer
         if (headX == food.x && headY == food.y) {
 
             food = {
-                x: Math.floor(Math.random() * 15) * box,
-                y: Math.floor(Math.random() * 15) * box
+                x: Math.floor(Math.random() * gridSize) * box,
+                y: Math.floor(Math.random() * gridSize) * box
             }
 
             coins++
             localStorage.setItem("coins", coins)
             document.getElementById("coins").innerText = coins
 
-            // aceleração leve
+            // leve aumento de velocidade
             if (speed > 30) speed -= 1
 
         } else {
@@ -95,7 +98,7 @@ window.onload = function () {
         snake.unshift({ x: headX, y: headY })
     }
 
-    // LOOP OTIMIZADO
+    // loop otimizado
     let lastTime = 0
     let speed = 60
     let running = false
@@ -123,7 +126,7 @@ window.onload = function () {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
     }
 
-    // LOJA (simplificada mas funcional)
+    // LOJA
     const skins = [
         { name: "Verde", cor: "lime", preco: 0 },
         { name: "Azul", cor: "blue", preco: 10 },
