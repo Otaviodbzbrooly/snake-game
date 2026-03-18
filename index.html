@@ -2,20 +2,15 @@
 <html>
 
 <head>
-
     <meta charset="UTF-8">
     <title>Snake Game</title>
-
     <link rel="stylesheet" href="style.css">
 
     <script>
         if (localStorage.getItem("logado") !== "true") {
-
             window.location.href = "login.html"
-
         }
     </script>
-
 </head>
 
 <body>
@@ -23,39 +18,28 @@
     <h1>🐍 Snake Game</h1>
 
     <div class="topbar">
-
         <div>💰 Moedas: <span id="coins">0</span></div>
-
         <button onclick="abrirLoja()">🛒 Loja</button>
-
         <button onclick="logout()">Logout</button>
-
     </div>
 
     <div class="menu">
-
         <button onclick="startGame()">▶ START</button>
-
         <button onclick="resetGame()">🔄 RESET</button>
-
     </div>
 
+    <!-- 🔥 CAMPO MENOR (10x10) -->
     <canvas id="game" width="200" height="200"></canvas>
 
     <div id="loja" class="loja">
-
         <h2>Loja de Skins</h2>
-
         <div id="skins" class="skins-grid"></div>
 
         <h3>Carrinho</h3>
-
         <ul id="carrinho"></ul>
 
         <button onclick="comprar()">Comprar</button>
-
         <button onclick="fecharLoja()">Fechar</button>
-
     </div>
 
     <script src="script.js"></script>
