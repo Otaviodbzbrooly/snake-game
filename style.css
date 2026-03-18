@@ -25,7 +25,6 @@ button {
     gap: 20px;
 }
 
-
 /* LOGIN */
 
 .login-body {
@@ -33,7 +32,6 @@ button {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: #111;
 }
 
 .login-box {
@@ -44,7 +42,6 @@ button {
     flex-direction: column;
     gap: 10px;
 }
-
 
 /* LOJA */
 
@@ -57,7 +54,7 @@ button {
     padding: 20px;
     border: 2px solid lime;
     display: none;
-    width: 400px;
+    width: 300px;
 }
 
 .skins-grid {
