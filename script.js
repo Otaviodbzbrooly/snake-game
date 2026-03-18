@@ -95,8 +95,8 @@ window.onload = function () {
             localStorage.setItem("coins", coins)
             document.getElementById("coins").innerText = coins
 
-            // 🔥 AUMENTA DIFICULDADE COM O TEMPO
-            if (speed > 40) speed -= 2
+            // 🔥 AUMENTO DINÂMICO DA VELOCIDADE
+            if (speed > 20) speed -= 2
 
         } else {
             snake.pop()
@@ -105,9 +105,9 @@ window.onload = function () {
         snake.unshift({ x: headX, y: headY })
     }
 
-    // 🚀 LOOP PROFISSIONAL (FPS ALTO)
+    // 🚀 LOOP PROFISSIONAL (ALTA TAXA)
     let lastTime = 0
-    let speed = 120 // quanto menor = mais rápido
+    let speed = 50 // 🔥 MAIS RÁPIDO E FLUIDO
     let running = false
 
     function loop(time) {
