@@ -8,7 +8,6 @@ window.onload = function () {
     let snake
     let food
     let direction
-    let game
 
     let coins = parseInt(localStorage.getItem("coins")) || 0
     document.getElementById("coins").innerText = coins
@@ -32,19 +31,6 @@ window.onload = function () {
         direction = "RIGHT"
     }
 
-    window.startGame = function () {
-        iniciarValores()
-
-        if (game) clearInterval(game)
-
-        game = setInterval(jogo, 120) // 🔥 FPS melhorado
-    }
-
-    window.resetGame = function () {
-        clearInterval(game)
-        ctx.clearRect(0, 0, 400, 400)
-    }
-
     function mudarDirecao(e) {
         if (e.key == "a" && direction != "RIGHT") direction = "LEFT"
         if (e.key == "d" && direction != "LEFT") direction = "RIGHT"
@@ -57,8 +43,10 @@ window.onload = function () {
     }
 
     function jogo() {
+
         ctx.clearRect(0, 0, 400, 400)
 
+        // GRID
         for (let x = 0; x < canvas.width; x += box) {
             for (let y = 0; y < canvas.height; y += box) {
                 ctx.strokeStyle = "#222"
@@ -66,10 +54,12 @@ window.onload = function () {
             }
         }
 
+        // COBRA
         snake.forEach(part => {
             ctx.drawImage(skinImage, part.x, part.y, box, box)
         })
 
+        // COMIDA
         ctx.drawImage(foodImg, food.x, food.y, box, box)
 
         let headX = snake[0].x
@@ -80,6 +70,7 @@ window.onload = function () {
         if (direction == "UP") headY -= box
         if (direction == "DOWN") headY += box
 
+        // MORTE
         if (
             headX < 0 ||
             headX >= canvas.width ||
@@ -87,12 +78,14 @@ window.onload = function () {
             headY >= canvas.height ||
             colisao({ x: headX, y: headY }, snake)
         ) {
-            clearInterval(game)
             alert("💀 GAME OVER")
+            running = false
             return
         }
 
+        // COMER
         if (headX == food.x && headY == food.y) {
+
             food = {
                 x: Math.floor(Math.random() * 20) * box,
                 y: Math.floor(Math.random() * 20) * box
@@ -102,11 +95,42 @@ window.onload = function () {
             localStorage.setItem("coins", coins)
             document.getElementById("coins").innerText = coins
 
+            // 🔥 AUMENTA DIFICULDADE COM O TEMPO
+            if (speed > 40) speed -= 2
+
         } else {
             snake.pop()
         }
 
         snake.unshift({ x: headX, y: headY })
+    }
+
+    // 🚀 LOOP PROFISSIONAL (FPS ALTO)
+    let lastTime = 0
+    let speed = 120 // quanto menor = mais rápido
+    let running = false
+
+    function loop(time) {
+
+        if (!running) return
+
+        if (time - lastTime > speed) {
+            jogo()
+            lastTime = time
+        }
+
+        requestAnimationFrame(loop)
+    }
+
+    window.startGame = function () {
+        iniciarValores()
+        running = true
+        requestAnimationFrame(loop)
+    }
+
+    window.resetGame = function () {
+        running = false
+        ctx.clearRect(0, 0, 400, 400)
     }
 
     /* LOJA */
