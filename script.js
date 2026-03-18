@@ -12,33 +12,14 @@ window.onload = function () {
     let coins = parseInt(localStorage.getItem("coins")) || 0
     document.getElementById("coins").innerText = coins
 
-    let skinImage = new Image()
-    skinImage.src = "imagens/skin1.png"
-
-    let foodImg = new Image()
-    foodImg.src = "imagens/food.png"
-
     document.addEventListener("keydown", mudarDirecao)
-
-    // 🚀 GRID EM CACHE (PERFORMANCE ALTA)
-    let gridCanvas = document.createElement("canvas")
-    gridCanvas.width = 400
-    gridCanvas.height = 400
-    let gridCtx = gridCanvas.getContext("2d")
-
-    for (let x = 0; x < 400; x += box) {
-        for (let y = 0; y < 400; y += box) {
-            gridCtx.strokeStyle = "#222"
-            gridCtx.strokeRect(x, y, box, box)
-        }
-    }
 
     function iniciarValores() {
         snake = [{ x: 200, y: 200 }]
 
         food = {
-            x: Math.floor(Math.random() * 20) * box,
-            y: Math.floor(Math.random() * 20) * box
+            x: Math.floor(Math.random() * 15) * box,
+            y: Math.floor(Math.random() * 15) * box
         }
 
         direction = "RIGHT"
@@ -57,16 +38,19 @@ window.onload = function () {
 
     function jogo() {
 
-        // 🚀 desenha grid pronto (leve)
-        ctx.drawImage(gridCanvas, 0, 0)
+        // LIMPA TELA
+        ctx.fillStyle = "#000"
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
 
         // COBRA
+        ctx.fillStyle = "lime"
         snake.forEach(part => {
-            ctx.drawImage(skinImage, part.x, part.y, box, box)
+            ctx.fillRect(part.x, part.y, box, box)
         })
 
         // COMIDA
-        ctx.drawImage(foodImg, food.x, food.y, box, box)
+        ctx.fillStyle = "red"
+        ctx.fillRect(food.x, food.y, box, box)
 
         let headX = snake[0].x
         let headY = snake[0].y
@@ -93,16 +77,16 @@ window.onload = function () {
         if (headX == food.x && headY == food.y) {
 
             food = {
-                x: Math.floor(Math.random() * 20) * box,
-                y: Math.floor(Math.random() * 20) * box
+                x: Math.floor(Math.random() * 15) * box,
+                y: Math.floor(Math.random() * 15) * box
             }
 
             coins++
             localStorage.setItem("coins", coins)
             document.getElementById("coins").innerText = coins
 
-            // 🔥 aceleração dinâmica
-            if (speed > 20) speed -= 2
+            // aceleração leve
+            if (speed > 30) speed -= 1
 
         } else {
             snake.pop()
@@ -111,16 +95,16 @@ window.onload = function () {
         snake.unshift({ x: headX, y: headY })
     }
 
-    // 🚀 LOOP PROFISSIONAL
+    // LOOP OTIMIZADO
     let lastTime = 0
-    let speed = 50
+    let speed = 60
     let running = false
 
     function loop(time) {
 
         if (!running) return
 
-        if (time - lastTime > speed) {
+        if (time - lastTime >= speed) {
             jogo()
             lastTime = time
         }
@@ -136,18 +120,18 @@ window.onload = function () {
 
     window.resetGame = function () {
         running = false
-        ctx.clearRect(0, 0, 400, 400)
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
     }
 
-    /* LOJA */
-
+    // LOJA (simplificada mas funcional)
     const skins = [
-        { name: "Skin Verde", img: "imagens/skin1.png", preco: 0 },
-        { name: "Skin Azul", img: "imagens/skin2.png", preco: 10 },
-        { name: "Skin Rosa", img: "imagens/skin3.png", preco: 30 }
+        { name: "Verde", cor: "lime", preco: 0 },
+        { name: "Azul", cor: "blue", preco: 10 },
+        { name: "Rosa", cor: "pink", preco: 30 }
     ]
 
     let carrinho = []
+    let corAtual = "lime"
 
     const skinsDiv = document.getElementById("skins")
 
@@ -156,7 +140,6 @@ window.onload = function () {
         div.className = "skin"
 
         div.innerHTML = `
-            <img src="${skin.img}" width="40"><br>
             ${skin.name}<br>
             Preço: ${skin.preco}<br>
             <button onclick="addCarrinho(${i})">Adicionar</button>
@@ -184,7 +167,7 @@ window.onload = function () {
             localStorage.setItem("coins", coins)
             document.getElementById("coins").innerText = coins
 
-            skinImage.src = carrinho[carrinho.length - 1].img
+            corAtual = carrinho[carrinho.length - 1].cor
 
             alert("Skin equipada!")
         } else {
