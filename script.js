@@ -11,10 +11,9 @@ window.onload = function () {
     let direction = "RIGHT"
     let nextDirection = "RIGHT"
 
-    let lastTime = 0
-    let speed = 100 // menor = mais rápido
-
     let running = false
+    let lastUpdate = 0
+    const updateRate = 120 // 🔥 controla velocidade (ms)
 
     let coins = parseInt(localStorage.getItem("coins")) || 0
     document.getElementById("coins").innerText = coins
@@ -49,8 +48,10 @@ window.onload = function () {
 
     function jogo() {
 
-        direction = nextDirection // 🔥 aplica direção segura
+        // aplica direção segura
+        direction = nextDirection
 
+        // limpa tela
         ctx.fillStyle = "black"
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
@@ -93,9 +94,6 @@ window.onload = function () {
             localStorage.setItem("coins", coins)
             document.getElementById("coins").innerText = coins
 
-            // aumenta velocidade aos poucos
-            if (speed > 50) speed -= 2
-
         } else {
             snake.pop()
         }
@@ -107,9 +105,9 @@ window.onload = function () {
 
         if (!running) return
 
-        if (time - lastTime > speed) {
+        if (time - lastUpdate >= updateRate) {
             jogo()
-            lastTime = time
+            lastUpdate = time
         }
 
         requestAnimationFrame(loop)
@@ -118,6 +116,7 @@ window.onload = function () {
     window.startGame = function () {
         iniciarValores()
         running = true
+        lastUpdate = 0
         requestAnimationFrame(loop)
     }
 
@@ -125,9 +124,6 @@ window.onload = function () {
         running = false
         ctx.clearRect(0, 0, canvas.width, canvas.height)
     }
-
-    window.abrirLoja = () => document.getElementById("loja").style.display = "block"
-    window.fecharLoja = () => document.getElementById("loja").style.display = "none"
 
     window.logout = function () {
         localStorage.removeItem("logado")
