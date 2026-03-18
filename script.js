@@ -20,6 +20,19 @@ window.onload = function () {
 
     document.addEventListener("keydown", mudarDirecao)
 
+    // 🚀 GRID EM CACHE (PERFORMANCE ALTA)
+    let gridCanvas = document.createElement("canvas")
+    gridCanvas.width = 400
+    gridCanvas.height = 400
+    let gridCtx = gridCanvas.getContext("2d")
+
+    for (let x = 0; x < 400; x += box) {
+        for (let y = 0; y < 400; y += box) {
+            gridCtx.strokeStyle = "#222"
+            gridCtx.strokeRect(x, y, box, box)
+        }
+    }
+
     function iniciarValores() {
         snake = [{ x: 200, y: 200 }]
 
@@ -44,15 +57,8 @@ window.onload = function () {
 
     function jogo() {
 
-        ctx.clearRect(0, 0, 400, 400)
-
-        // GRID
-        for (let x = 0; x < canvas.width; x += box) {
-            for (let y = 0; y < canvas.height; y += box) {
-                ctx.strokeStyle = "#222"
-                ctx.strokeRect(x, y, box, box)
-            }
-        }
+        // 🚀 desenha grid pronto (leve)
+        ctx.drawImage(gridCanvas, 0, 0)
 
         // COBRA
         snake.forEach(part => {
@@ -95,7 +101,7 @@ window.onload = function () {
             localStorage.setItem("coins", coins)
             document.getElementById("coins").innerText = coins
 
-            // 🔥 AUMENTO DINÂMICO DA VELOCIDADE
+            // 🔥 aceleração dinâmica
             if (speed > 20) speed -= 2
 
         } else {
@@ -105,9 +111,9 @@ window.onload = function () {
         snake.unshift({ x: headX, y: headY })
     }
 
-    // 🚀 LOOP PROFISSIONAL (ALTA TAXA)
+    // 🚀 LOOP PROFISSIONAL
     let lastTime = 0
-    let speed = 50 // 🔥 MAIS RÁPIDO E FLUIDO
+    let speed = 50
     let running = false
 
     function loop(time) {
