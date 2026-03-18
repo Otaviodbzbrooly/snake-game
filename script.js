@@ -9,7 +9,12 @@ window.onload = function () {
     let snake = []
     let food = {}
     let direction = "RIGHT"
-    let game = null
+    let nextDirection = "RIGHT"
+
+    let lastTime = 0
+    let speed = 100 // menor = mais rápido
+
+    let running = false
 
     let coins = parseInt(localStorage.getItem("coins")) || 0
     document.getElementById("coins").innerText = coins
@@ -20,6 +25,7 @@ window.onload = function () {
         snake = [{ x: 5 * box, y: 5 * box }]
         food = gerarComida()
         direction = "RIGHT"
+        nextDirection = "RIGHT"
     }
 
     function gerarComida() {
@@ -30,31 +36,31 @@ window.onload = function () {
     }
 
     function mudarDirecao(e) {
-        if (e.key === "a" && direction !== "RIGHT") direction = "LEFT"
-        if (e.key === "d" && direction !== "LEFT") direction = "RIGHT"
-        if (e.key === "w" && direction !== "DOWN") direction = "UP"
-        if (e.key === "s" && direction !== "UP") direction = "DOWN"
+
+        if (e.key === "a" && direction !== "RIGHT") nextDirection = "LEFT"
+        if (e.key === "d" && direction !== "LEFT") nextDirection = "RIGHT"
+        if (e.key === "w" && direction !== "DOWN") nextDirection = "UP"
+        if (e.key === "s" && direction !== "UP") nextDirection = "DOWN"
     }
 
     function colisao(head) {
-        for (let i = 0; i < snake.length; i++) {
-            if (head.x === snake[i].x && head.y === snake[i].y) {
-                return true
-            }
-        }
-        return false
+        return snake.some(s => s.x === head.x && s.y === head.y)
     }
 
     function jogo() {
 
+        direction = nextDirection // 🔥 aplica direção segura
+
         ctx.fillStyle = "black"
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
+        // cobra
         ctx.fillStyle = "lime"
-        for (let i = 0; i < snake.length; i++) {
-            ctx.fillRect(snake[i].x, snake[i].y, box, box)
-        }
+        snake.forEach(part => {
+            ctx.fillRect(part.x, part.y, box, box)
+        })
 
+        // comida
         ctx.fillStyle = "red"
         ctx.fillRect(food.x, food.y, box, box)
 
@@ -66,6 +72,7 @@ window.onload = function () {
         if (direction === "UP") headY -= box
         if (direction === "DOWN") headY += box
 
+        // colisões
         if (
             headX < 0 ||
             headY < 0 ||
@@ -73,17 +80,21 @@ window.onload = function () {
             headY >= gridSize * box ||
             colisao({ x: headX, y: headY })
         ) {
-            clearInterval(game)
+            running = false
             alert("💀 GAME OVER")
             return
         }
 
+        // comer
         if (headX === food.x && headY === food.y) {
             food = gerarComida()
 
             coins++
             localStorage.setItem("coins", coins)
             document.getElementById("coins").innerText = coins
+
+            // aumenta velocidade aos poucos
+            if (speed > 50) speed -= 2
 
         } else {
             snake.pop()
@@ -92,14 +103,26 @@ window.onload = function () {
         snake.unshift({ x: headX, y: headY })
     }
 
+    function loop(time) {
+
+        if (!running) return
+
+        if (time - lastTime > speed) {
+            jogo()
+            lastTime = time
+        }
+
+        requestAnimationFrame(loop)
+    }
+
     window.startGame = function () {
         iniciarValores()
-        clearInterval(game)
-        game = setInterval(jogo, 80)
+        running = true
+        requestAnimationFrame(loop)
     }
 
     window.resetGame = function () {
-        clearInterval(game)
+        running = false
         ctx.clearRect(0, 0, canvas.width, canvas.height)
     }
 
